@@ -1,6 +1,0 @@
-To Do: 
-
-    - Create a file named alnilam.txt within the stars directory.
-
-    - Add the text "mass = 5.647 × 10^31 kg" to the alnilam.txt plain text file.
-
