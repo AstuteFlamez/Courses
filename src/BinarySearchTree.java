@@ -1,6 +1,57 @@
 public class BinarySearchTree<T extends Comparable<T>> implements SortedCollection<T> {
 
   protected BinaryNode<T> root = null;
+
+  /**
+   * Performs the rotation operation on the provided nodes within this tree.
+   * When the provided child is a left child of the provided parent, this
+   * method will perform a right rotation. When the provided child is a right
+   * child of the provided parent, this method will perform a left rotation.
+   *
+   * @param child is the node being rotated from child to parent position
+   * @param parent is the node being rotated from parent to child position
+   */
+  protected void rotate(BinaryNode<T> child, BinaryNode<T> parent) {
+    if (child == null || parent == null) {
+      throw new IllegalArgumentException("child and parent cannot be null");
+    }
+    if (child.getUp() != parent) {
+      throw new IllegalArgumentException("child must be a direct child of parent");
+    }
+
+    boolean leftChild = parent.getLeft() == child;
+    boolean rightChild = parent.getRight() == child;
+    if (!leftChild && !rightChild) {
+      throw new IllegalArgumentException("child is not a child of parent");
+    }
+
+    BinaryNode<T> grandParent = parent.getUp();
+
+    if (leftChild) {
+      parent.setLeft(child.getRight()); // right rotation
+      if (child.getRight() != null) {
+        child.getRight().setUp(parent);
+      }
+      child.setRight(parent);
+    } else { // rightChild
+      parent.setRight(child.getLeft()); // left rotation
+      if (child.getLeft() != null) {
+        child.getLeft().setUp(parent);
+      }
+      child.setLeft(parent);
+    }
+
+    child.setUp(grandParent); // child's parent -> grandparent
+    parent.setUp(child); // parent's parent -> child
+
+    if (grandParent == null) {
+      this.root = child;
+    } else if (grandParent.getLeft() == parent) {
+      grandParent.setLeft(child);
+    } else {
+      grandParent.setRight(child);
+    }
+  }
   
   public void insert(T data) throws NullPointerException {
     if (data == null) throw new NullPointerException("data cannot be null");
