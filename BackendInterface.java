@@ -7,10 +7,7 @@ import java.io.IOException;
 public interface BackendInterface {
 
     //public Backend(IterableSortedCollection<GameRecord> tree)
-    // !!!! 
-    // Your constructor must have the signature above!
-    // !!!!
-    // All methods below must
+    // Your constructor must have the signature above. All methods below must
     // use the provided tree to store, sort, and iterate through records. This
     // will enable you to create some tests that use the placeholder tree, and
     // others that make use of a working tree, depending on what is passed
