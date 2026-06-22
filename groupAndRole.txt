@@ -1,2 +1,2 @@
-You have been assigned to group 3 for project 1.
+You have been assigned to group 3 for this first project.
 Your assigned role for this project is: frontend developer
