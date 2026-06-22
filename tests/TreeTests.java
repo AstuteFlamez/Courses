@@ -1,14 +1,11 @@
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
-/**
- * JUnit tests covering Binary Search Tree rotations and Red-Black Tree insertions.
- */
 public class TreeTests {
 
     /**
-     * Tests a right rotation on the root node when the tree has no additional children.
-     * This covers a parent-child pair with 0 shared children.
+     * Tests a right rotation on the root node when the tree has no additional children
+     * Covers a parent-child pair with 0 shared children
      */
     @Test
     public void bstRootRightRotationNoSharedChildren() {
@@ -16,7 +13,7 @@ public class TreeTests {
         tree.insert(20);
         tree.insert(10);
 
-        // Perform right rotation on the root and its left child.
+        // Perform right rotation on the root and left child
         tree.rotate(tree.root.getLeft(), tree.root);
 
         Assertions.assertEquals("[ 10, 20 ]", tree.root.toLevelOrderString());
@@ -25,8 +22,8 @@ public class TreeTests {
     }
 
     /**
-     * Tests a left rotation on a non-root parent-child pair with two shared children.
-     * The parent has a left subtree and the child has one right child.
+     * Tests left rotation
+     * The parent has a left subtree and the child has one right child
      */
     @Test
     public void bstNonRootLeftRotationTwoSharedChildren() {
@@ -37,7 +34,7 @@ public class TreeTests {
         tree.insert(60);
         tree.insert(80);
 
-        // Rotate the right child of the root into the root position.
+        // Rotate the root's right child into the root position
         tree.rotate(tree.root.getRight(), tree.root);
 
         Assertions.assertEquals("[ 70, 50, 80, 30, 60 ]", tree.root.toLevelOrderString());
@@ -47,8 +44,8 @@ public class TreeTests {
     }
 
     /**
-     * Tests a right rotation on a non-root parent-child pair with three shared children.
-     * The rotated subtree contains both parent and child children, plus the parent sibling.
+     * Tests a right rotation
+     * The rotated subtree contains both parent and child children + the parent sibling
      */
     @Test
     public void bstNonRootRightRotationThreeSharedChildren() {
@@ -61,7 +58,7 @@ public class TreeTests {
         tree.insert(120);
         tree.insert(175);
 
-        // Rotate a non-root left subtree around the parent-child pair (25, 50).
+        // Rotate a non-root left subtree around the parent-child pair
         tree.rotate(tree.root.getLeft().getLeft(), tree.root.getLeft());
 
         Assertions.assertEquals("[ 100, 25, 150, 50, 120, 175, 40 ]", tree.root.toLevelOrderString());
@@ -71,19 +68,18 @@ public class TreeTests {
     }
 
     /**
-     * Tests red-black insertion where a newly inserted red node causes a right-rotation repair.
-     * This mirrors the lecture slide example where inserting a left-left grandchild requires rotation.
+     * Tests red black insertion
      */
     @Test
     public void rbtInsertLeftLeftRotationExample() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
 
-        // Insert values that create a left-left red violation.
+        // Insert values that create a left-left red violation
         tree.insert(10);
         tree.insert(5);
         tree.insert(1);
 
-        // After repair, the root should be black and the structure should be balanced.
+        // After repair the root should be black and the structure should be balanced
         Assertions.assertEquals(10, tree.root.getData());
         Assertions.assertTrue(((RedBlackNode<Integer>) tree.root).isBlackNode());
         Assertions.assertEquals(5, tree.root.getLeft().getData());
@@ -92,21 +88,21 @@ public class TreeTests {
     }
 
     /**
-     * Tests red-black insertion where the uncle is red and recoloring is required.
-     * This case verifies that ensureRedProperty performs the recolor repair rule.
+     * Tests red black insertion where the uncle is red and recoloring is required
+     * This case verifies that ensureRedProperty performs the recolor repair rule
      */
     @Test
     public void rbtInsertRecolorCase() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
 
-        // Build an initial tree where the parent and uncle are red after insertion.
+        // Build an initial tree where the parent and uncle are red after insertion
         tree.insert(20);
         tree.insert(10);
         tree.insert(30);
         tree.insert(5);
         tree.insert(15);
 
-        // The parent and uncle should have been recolored, leaving the root black.
+        // The parent and uncle should have been recolored, leaving the root black
         Assertions.assertTrue(((RedBlackNode<Integer>) tree.root).isBlackNode());
         Assertions.assertFalse(((RedBlackNode<Integer>) tree.root.getLeft()).isBlackNode());
         Assertions.assertFalse(((RedBlackNode<Integer>) tree.root.getRight()).isBlackNode());
@@ -114,14 +110,13 @@ public class TreeTests {
     }
 
     /**
-     * Tests a Red-Black Tree insertion example that exercises a rotation followed by recoloring.
-     * The example is modeled after the lecture insertion sequence shown on slide 14.
+     * Tests a Red-Black Tree insertion example that exercises a rotation followed by recoloring
      */
     @Test
     public void rbtInsertRotationAndRecolorExample() {
         RedBlackTree<Integer> tree = new RedBlackTree<>();
 
-        // Insert values that cause a red parent violation and require the repair algorithm.
+        // Insert values that cause a red parent violation and require the repair algorithm
         tree.insert(30);
         tree.insert(20);
         tree.insert(40);
@@ -129,7 +124,7 @@ public class TreeTests {
         tree.insert(25);
         tree.insert(22);
 
-        // Ensure the tree root is black and the inserted node is placed correctly.
+        // Ensure the tree root is black and the inserted node is placed correctly
         Assertions.assertTrue(((RedBlackNode<Integer>) tree.root).isBlackNode());
         Assertions.assertEquals(30, tree.root.getData());
         Assertions.assertEquals(22, tree.root.getLeft().getRight().getLeft().getData());
