@@ -3,6 +3,9 @@ import java.util.Objects;
  * An array based implementation of the ListADT interface.
  */
 public class MyList<ElementType> implements ListADT<ElementType> {
+
+    // comment to test make
+
     private ElementType[] array; // storage for list elements
     private int size; // tracks the number of elements in list
 
@@ -79,7 +82,10 @@ public class MyList<ElementType> implements ListADT<ElementType> {
         for(int i=0;i<size;i++)
             array[i] = null;
         // and update this list's size to reflect this emptiness
-        size = 0;
+
+        // === INTENTIONAL BUG ===
+        // size = 0;
+        size = 1;
     }
 
     /**

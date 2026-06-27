@@ -3,6 +3,8 @@
  */
 public class Main {
 
+    // comment to test make
+
     public static void main(String[] args) {
         // populate zoo with antelope, bear, cheetah, deer, and eagle
         ListADT<String> miniZoo = new MyList<>();
@@ -16,6 +18,13 @@ public class Main {
         // TODO: add code here to trade the cheetah for a fox
         // 1) remove the cheetah element from miniZoo
         // 2) add a new element with the value "fox" to miniZoo
+        for (int i = 0; i < miniZoo.size(); i++) {
+            if (miniZoo.get(i).equals("cheetah")) {
+                miniZoo.remove(i);
+                break;
+            }
+        }
+        miniZoo.add("fox");
         
         System.out.println("Miniature Zoo ended with: "+miniZoo);
     }
