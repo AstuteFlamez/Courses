@@ -14,7 +14,7 @@ Main.class : Main.java MyList.class ListADT.class
 	javac -cp . Main.java
 
 MyFirstJUnit.class: MyFirstJUnit.java MyList.class ListADT.class
-	javac -cp .:../../junit5.jar MyFirstJUnit.java
+	javac -cp .:../junit5.jar MyFirstJUnit.java
 
 Test: MyFirstJUnit.class
-	java -jar ../../junit5.jar -cp . -c MyFirstJUnit
+	java -jar ../junit5.jar -cp . -c MyFirstJUnit
