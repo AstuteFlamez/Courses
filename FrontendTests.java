@@ -9,7 +9,7 @@ public class FrontendTests {
      * adding a single game record to the backend.
      */
     @Test
-    public void roleTest1() {
+    public void frontendTest1() {
         BackendInterface backend = new Backend_Placeholder(null);
         
         String input = "submit Player1 AFRICA 500 10 25 001:30:45\nquit\n";
@@ -30,7 +30,7 @@ public class FrontendTests {
      * Tests the collectables range filter and show commands
      */
     @Test
-    public void roleTest2() {
+    public void frontendTest2() {
         BackendInterface backend = new Backend_Placeholder(null);
         
         String input = "collectables 10 to 50\nshow 10\nquit\n";
@@ -51,7 +51,7 @@ public class FrontendTests {
      * Tests the location filter and fastest times display
      */
     @Test
-    public void roleTest3() {
+    public void frontendTest3() {
         BackendInterface backend = new Backend_Placeholder(null);
         
         String input = "help\nlocation ASIA\nshow fastest times\nquit\n";
