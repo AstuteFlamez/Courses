@@ -4,8 +4,8 @@ if [ ! -f "riddles.txt" ]; then
     exit 1
 fi
 
-if [[ $(git log --pretty=format:"%h %s" | grep -c "Added first riddle.") -lt 1 ]]; then
-    echo "Warning Submission Incomplete: No commit found with \"Added first riddle.\""
+if [[ $(git log --pretty=format:"%h %s" | grep -c "Merged bugfixes") -lt 1 ]]; then
+    echo "Warning Submission Incomplete: No commit found with \"Merged bugfixes\""
     exit 1
 fi
 
