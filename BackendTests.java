@@ -12,7 +12,7 @@ public class BackendTests {
     // 1 addRecord works and getAndSetRange gives back the right records,
     
     @Test
-    public void backendTest1() {
+    public void roleTest1() {
         Tree_Placeholder tree = new Tree_Placeholder();
         Backend backend = new Backend(tree);
  
@@ -38,7 +38,7 @@ public class BackendTests {
  
     // test 2: filtering by continent, and making sure null clears the filter
     @Test
-    public void backendTest2() {
+    public void roleTest2() {
         Tree_Placeholder tree = new Tree_Placeholder();
         Backend backend = new Backend(tree);
  
@@ -60,8 +60,9 @@ public class BackendTests {
  
     // test 3 getTopTen sorts by fastest time
     @Test
-    public void backendTest3() throws IOException {
-        
+    public void roleTest3() throws IOException {
+       
+        Tree_Placeholder tree = new Tree_Placeholder();
         Backend backend = new Backend(tree);
         List<String> top = backend.getTopTen();
         assertEquals("v0idt3mp0", top.get(0));
