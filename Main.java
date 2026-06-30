@@ -4,7 +4,7 @@
 **/
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Why is beef stew a bad password?");
-	    System.out.println("It isn't stew!");
+        System.out.println("Why isn't 'beefstew' a good password?");
+	    System.out.println("It isn't stroganoff!");
     }
 }
