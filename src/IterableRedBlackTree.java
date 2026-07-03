@@ -9,6 +9,11 @@ import java.util.NoSuchElementException;
 public class IterableRedBlackTree<T extends Comparable<T>>
         extends RedBlackTree<T> implements IterableSortedCollection<T> {
 
+    // stores the minimum value for iterators produced by this tree (null for no minimum)
+    private Comparable<T> iteratorMin = null;
+    // stores the maximum value for iterators produced by this tree (null for no maximum)
+    private Comparable<T> iteratorMax = null;
+
     /**
      * Allows setting the start (minimum) value of the iterator. When this method is called,
      * every iterator created after it will use the minimum set by this method until this method
@@ -17,8 +22,9 @@ public class IterableRedBlackTree<T extends Comparable<T>>
      * @param min the minimum for iterators created for this tree, or null for no minimum
      */
     public void setIteratorMin(Comparable<T> min) {
+        this.iteratorMin = min;
     }
-
+    
     /**
      * Allows setting the stop (maximum) value of the iterator. When this method is called,
      * every iterator created after it will use the maximum set by this method until this method
@@ -27,6 +33,7 @@ public class IterableRedBlackTree<T extends Comparable<T>>
      * @param max the maximum for iterators created for this tree, or null for no maximum
      */
     public void setIteratorMax(Comparable<T> max) {
+        this.iteratorMax = max;
     }
 
     /**
@@ -39,7 +46,7 @@ public class IterableRedBlackTree<T extends Comparable<T>>
      * value and finishes with the highest value that exists in the tree.
      */
     public Iterator<T> iterator() {
-        return null;
+        return new TreeIterator<T>(this.root, this.iteratorMin, this.iteratorMax);
     }
 
     /**
@@ -67,6 +74,12 @@ public class IterableRedBlackTree<T extends Comparable<T>>
          * @param max  the maximum value that the iterator will return
          */
         public TreeIterator(BinaryNode<R> root, Comparable<R> min, Comparable<R> max) {
+            // store bounds
+            this.min = min;
+            this.max = max;
+
+            this.stack = new Stack<>();
+            this.updateStack(root);
         }
 
         /**
@@ -81,13 +94,31 @@ public class IterableRedBlackTree<T extends Comparable<T>>
          * @param node the root node of the subtree to process
          */
         private void updateStack(BinaryNode<R> node) {
+            // base case
+            if (node == null) return;
+
+            // if node's value is smaller than the minimum bound, skip left subtree and node
+            if (this.min != null && this.min.compareTo(node.getData()) > 0) {
+                // node.data < min -> all left subtree and node are < min
+                updateStack(node.getRight());
+                return;
+            }
+
+            // node.data >= min: push current node and continue searching left
+            this.stack.push(node);
+            updateStack(node.getLeft());
+            return;
         }
 
         /**
          * Returns true if the iterator has another value to return, and false otherwise.
          */
         public boolean hasNext() {
-            return false;
+            if (this.stack == null || this.stack.isEmpty()) return false;
+            if (this.max == null) return true;
+            // if the smallest candidate is greater than max, there is no next
+            BinaryNode<R> nextNode = this.stack.peek();
+            return this.max.compareTo(nextNode.getData()) >= 0;
         }
 
         /**
@@ -102,7 +133,22 @@ public class IterableRedBlackTree<T extends Comparable<T>>
          * @throws NoSuchElementException if the iterator has no more values to return
          */
         public R next() {
-            return null;
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+
+            // pop the next node
+            BinaryNode<R> current = this.stack.pop();
+            R result = current.getData();
+
+            updateStack(current.getRight());
+
+            // ensure returned value respects the max bound
+            if (this.max != null && this.max.compareTo(result) < 0) {
+                throw new NoSuchElementException();
+            }
+
+            return result;
         }
     }
 
