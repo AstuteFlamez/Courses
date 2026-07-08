@@ -147,6 +147,36 @@ public class Frontend implements FrontendInterface {
         }
     }
 
+    /**
+     * Handles the submit command in two forms:
+     * 1. submit multiple FILEPATH: loads records from a file
+     * 2. submit NAME CONTINENT SCORE DAMAGE_TAKEN COLLECTABLES COMPLETION_TIME: adds a single record
+     * 
+     * Command parsing (parts array indices):
+     *   parts[0] = "submit" (command keyword)
+     *   parts[1] = "multiple" OR player name
+     *   
+     * For "submit multiple" format:
+     *   parts[2] = file path
+     * 
+     * For single record format:
+     *   parts[1] = player name
+     *   parts[2] = continent (AFRICA, ASIA, ANTARCTICA, AUSTRALIA, EUROPE, NORTH_AMERICA, SOUTH_AMERICA)
+     *   parts[3] = score (integer)
+     *   parts[4] = damage taken (integer)
+     *   parts[5] = collectables (integer)
+     *   parts[6] = completion time (format: hhh:mm:ss)
+     * 
+     * Exceptions thrown:
+     *   IllegalArgumentException: if parts array length is incorrect, if "multiple" format is missing filepath,
+     *                             if single record format has wrong number of arguments, if score/damage/collectables
+     *                             are not valid integers, if time format is invalid (hhh:mm:ss), or if continent
+     *                             is not a valid enum value
+     *   IOException: if file cannot be read for "submit multiple" command
+     * 
+     * @param parts the parsed command array
+     * @throws Exception if command syntax is invalid or backend operation fails
+     */
     private void handleSubmitCommand(String[] parts) throws Exception {
         if (parts.length < 2) {
             throw new IllegalArgumentException("Submit command requires at least one argument");
