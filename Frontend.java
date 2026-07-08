@@ -228,10 +228,16 @@ public class Frontend implements FrontendInterface {
 
         String name = parts[1];
         String continentStr = parts[2].toUpperCase();
+        String completionTime = parts[6];
         int score;
         int damageT;
         int collectables;
-        String completionTime = parts[6];
+
+        // Validate time format early before parsing other values
+        if (!isValidTimeFormat(completionTime)) {
+            throw new IllegalArgumentException(
+                "Completion time must be in format hhh:mm:ss!");
+        }
 
         try {
             score = Integer.parseInt(parts[3]);
@@ -239,11 +245,6 @@ public class Frontend implements FrontendInterface {
             collectables = Integer.parseInt(parts[5]);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Score, damage taken, and collectables must be valid integers!");
-        }
-
-        if (!isValidTimeFormat(completionTime)) {
-            throw new IllegalArgumentException(
-                "Completion time must be in format hhh:mm:ss!");
         }
 
         GameRecord.Continent continent;
