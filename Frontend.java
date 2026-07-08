@@ -343,6 +343,8 @@ public class Frontend implements FrontendInterface {
     }
 
     private void displayRecordsWithLimit(int maxCount) {
+        // Retrieve records based on the range filter previously set via handleCollectablesCommand
+        // and location filter set via handleLocationCommand
         List<String> records = backend.getAndSetRange(currentCollectablesLow, currentCollectablesHigh);
         if (records.isEmpty()) {
             System.out.println("No records found matching the current filters.");
