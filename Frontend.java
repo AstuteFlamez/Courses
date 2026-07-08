@@ -247,13 +247,7 @@ public class Frontend implements FrontendInterface {
             throw new IllegalArgumentException("Score, damage taken, and collectables must be valid integers!");
         }
 
-        GameRecord.Continent continent;
-        try {
-            continent = GameRecord.Continent.valueOf(continentStr);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid continent: " + parts[2] +
-                ". Valid options: AFRICA, ASIA, ANTARCTICA, AUSTRALIA, EUROPE, NORTH_AMERICA, SOUTH_AMERICA");
-        }
+        GameRecord.Continent continent = parseAndValidateContinent(continentStr, parts[2]);
 
         GameRecord record = new GameRecord(name, continent, score, damageT, collectables, completionTime);
         backend.addRecord(record);
@@ -298,18 +292,14 @@ public class Frontend implements FrontendInterface {
     }
 
     private void handleLocationCommand(String[] parts) throws IllegalArgumentException {
-        if (parts.length != 2) {
-            throw new IllegalArgumentException("Location command requires exactly one continent argument");
+        if (parts.length < 2) {
+            throw new IllegalArgumentException("Location command requires at least one continent argument");
         }
 
-        String continentStr = parts[1].toUpperCase();
-        GameRecord.Continent continent;
-        try {
-            continent = GameRecord.Continent.valueOf(continentStr);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid continent: " + parts[1] +
-                ". Valid options: AFRICA, ASIA, ANTARCTICA, AUSTRALIA, EUROPE, NORTH_AMERICA, SOUTH_AMERICA");
-        }
+        // Join all parts after "location" to handle multi-word continent names like "North America"
+        String continentInput = String.join(" ", java.util.Arrays.copyOfRange(parts, 1, parts.length));
+        String continentStr = continentInput.toUpperCase().replace(" ", "_");
+        GameRecord.Continent continent = parseAndValidateContinent(continentStr, continentInput);
 
         currentFilter = continent;
         backend.applyAndSetFilter(currentFilter);
@@ -373,6 +363,24 @@ public class Frontend implements FrontendInterface {
         for (String record : topTen) {
             System.out.println("  " + index + ". " + record);
             index++;
+        }
+    }
+
+    /**
+     * Parses and validates a continent string against the GameRecord.Continent enum.
+     * Automatically converts spaces to underscores for user convenience.
+     * 
+     * @param continentStr the processed continent string (uppercase with spaces converted to underscores)
+     * @param originalInput the original user input (for error messages)
+     * @return the corresponding GameRecord.Continent enum value
+     * @throws IllegalArgumentException if the continent string does not match any valid continent
+     */
+    private GameRecord.Continent parseAndValidateContinent(String continentStr, String originalInput) throws IllegalArgumentException {
+        try {
+            return GameRecord.Continent.valueOf(continentStr);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid continent: " + originalInput +
+                ". Valid options: AFRICA, ASIA, ANTARCTICA, AUSTRALIA, EUROPE, NORTH_AMERICA, SOUTH_AMERICA");
         }
     }
 
