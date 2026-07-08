@@ -323,15 +323,12 @@ public class Frontend implements FrontendInterface {
         }
 
         System.out.println("Records (showing up to " + maxCount + "):");
-        int count = 0;
-        for (String record : records) {
-            if (maxCount > 0 && count >= maxCount) {
-                break;
-            }
-            System.out.println("  " + record);
-            count++;
+        for (int count = 0; count < records.size() && (maxCount == 0 || count < maxCount); count++) {
+            System.out.println("  " + records.get(count));
         }
-        System.out.println("Total records displayed: " + count);
+        
+        int displayed = (maxCount == 0) ? records.size() : Math.min(records.size(), maxCount);
+        System.out.println("Total records displayed: " + displayed);
     }
 
     private void displayTopTenRecords() {
