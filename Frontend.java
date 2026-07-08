@@ -142,7 +142,9 @@ public class Frontend implements FrontendInterface {
                 default:
                     throw new IllegalArgumentException("Unknown command: " + commandType);
             }
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
@@ -175,9 +177,10 @@ public class Frontend implements FrontendInterface {
      *   IOException: if file cannot be read for "submit multiple" command
      * 
      * @param parts the parsed command array
-     * @throws Exception if command syntax is invalid or backend operation fails
+     * @throws IllegalArgumentException if command syntax is invalid
+     * @throws IOException if file cannot be read for submit multiple command
      */
-    private void handleSubmitCommand(String[] parts) throws Exception {
+    private void handleSubmitCommand(String[] parts) throws IllegalArgumentException, IOException {
         if (parts.length < 2) {
             throw new IllegalArgumentException("Submit command requires at least one argument");
         }
@@ -232,7 +235,7 @@ public class Frontend implements FrontendInterface {
         }
     }
 
-    private void handleCollectablesCommand(String[] parts) throws Exception {
+    private void handleCollectablesCommand(String[] parts) throws IllegalArgumentException {
         if (parts.length < 2) {
             throw new IllegalArgumentException("Collectables command requires at least one argument");
         }
@@ -269,7 +272,7 @@ public class Frontend implements FrontendInterface {
         }
     }
 
-    private void handleLocationCommand(String[] parts) throws Exception {
+    private void handleLocationCommand(String[] parts) throws IllegalArgumentException {
         if (parts.length != 2) {
             throw new IllegalArgumentException("Location command requires exactly one continent argument");
         }
@@ -288,7 +291,7 @@ public class Frontend implements FrontendInterface {
         System.out.println("Location filter set to: " + continentStr);
     }
 
-    private void handleShowCommand(String[] parts) throws Exception {
+    private void handleShowCommand(String[] parts) throws IllegalArgumentException {
         if (parts.length < 2) {
             throw new IllegalArgumentException("Show command requires at least one argument");
         }
@@ -326,7 +329,7 @@ public class Frontend implements FrontendInterface {
         for (int count = 0; count < records.size() && (maxCount == 0 || count < maxCount); count++) {
             System.out.println("  " + records.get(count));
         }
-        
+
         int displayed = (maxCount == 0) ? records.size() : Math.min(records.size(), maxCount);
         System.out.println("Total records displayed: " + displayed);
     }
