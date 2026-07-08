@@ -227,7 +227,7 @@ public class Frontend implements FrontendInterface {
         }
 
         String name = parts[1];
-        String continentStr = parts[2].toUpperCase();
+        String continentStr = parts[2].toUpperCase().replace(" ", "_");
         String completionTime = parts[6];
         int score;
         int damageT;
