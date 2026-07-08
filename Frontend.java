@@ -11,9 +11,9 @@ public class Frontend implements FrontendInterface {
     private GameRecord.Continent currentFilter = null;
 
     /**
-     * Constructor
-     * @param in Scanner to read user input
-     * @param backend BackendInterface to handle data operations
+     * Initializes the frontend with input scanner and backend service.
+     * @param in Scanner for user input
+     * @param backend Backend service for record management
      */
     public Frontend(Scanner in, BackendInterface backend) {
         this.in = in;
@@ -21,19 +21,13 @@ public class Frontend implements FrontendInterface {
     }
 
     /**
-     * Displays instructions for the syntax of user commands.  And then 
-     * repeatedly gives the user an opportunity to issue new commands until
-     * they enter "quit".  Uses the processSingleCommand method below to
-     * parse and run each command entered by the user.  If the backend ever
-     * throws any exceptions, they should be caught here and reported to the
-     * user.  The user should then continue to be able to issue subsequent
-     * commands until they enter "quit".  This method must use the scanner
-     * passed into the constructor to read commands input by the user.
+     * Displays command instructions and repeatedly processes user commands until quit.
      */
     @Override
     public void runCommandLoop() {
         showCommandInstructions();
 
+        // Main command loop
         boolean quit = false;
         while (!quit) {
             System.out.print("> ");
@@ -48,26 +42,7 @@ public class Frontend implements FrontendInterface {
     }
 
     /**
-     * Displays instructions for the user to understand the syntax of commands
-     * that they are able to enter.  This should be displayed once from the
-     * command loop, before the first user command is read in, and then later
-     * in response to the user entering the command: help.
-     * 
-     * The lowercase words in the following examples are keywords that the 
-     * user must match exactly in their commands, while the upper case words
-     * are placeholders for arguments that the user can specify.  The following
-     * are examples of valid command syntax that your frontend should be able
-     * to handle correctly.
-     * 
-     * submit NAME CONTINENT SCORE DAMAGE_TAKEN COLLECTABLES COMPLETION_TIME
-     * submit multiple FILEPATH
-     * collectables MAX
-     * collectables MIN to MAX
-     * location CONTINENT
-     * show MAX_COUNT
-     * show fastest times
-     * help
-     * quit
+     * Displays all available commands and their syntax.
      */
     @Override
     public void showCommandInstructions() {
@@ -86,32 +61,10 @@ public class Frontend implements FrontendInterface {
     }
 
     /**
-     * This method takes a command entered by the user as input. It parses
-     * that command to determine what kind of command it is, and then makes
-     * use of the backend (which was passed to the constructor) to update the
-     * state of that backend.  When a show or help command is issued, this
-     * method prints the appropriate results to standard out.  When a command 
-     * does not follow the syntax rules described above, this method should 
-     * print out an error message that describes at least one defect in the 
-     * syntax of the provided command argument.
-     * 
-     * Some notes on the expected behavior of the different commands:
-     *     submit : results in backend adding a new record with the specific NAME, CONTINENT,
-     *          SCORE, DAMAGE_TAKEN, COLLECTABLES, COMPLETION_TIME
-     *          COMPLETION_TIME is of the format "hhh:mm:ss"
-     *     submit multiple: results in backend loading data from specified path
-     *     collectables: updates backend's range of records to return
-     *                 should not result in any records being displayed
-     *     location: updates backend's filter criteria
-     *                   should not result in any records being displayed
-     *     show: displays list of records with currently set thresholds and filters
-     *           MAX_COUNT: argument limits the number of record names displayed
-     *           to the first MAX_COUNT in the list returned from backend
-     *           fastest times: argument displays results returned from the
-     *           backend's getTopTen method
-     *     help: displays command instructions
-     *     quit: ends this program (handled by runCommandLoop method above)
-     *           (do NOT use System.exit(), as this will interfere with tests)
+     * Parses and executes a single user command. Displays output for show/help commands.
+     * @param command The user command string
+     * @throws IllegalArgumentException for invalid syntax
+     * @throws IOException if file read fails
      */
     @Override
     public void processSingleCommand(String command) {
@@ -150,35 +103,10 @@ public class Frontend implements FrontendInterface {
     }
 
     /**
-     * Handles the submit command in two forms:
-     * 1. submit multiple FILEPATH: loads records from a file
-     * 2. submit NAME CONTINENT SCORE DAMAGE_TAKEN COLLECTABLES COMPLETION_TIME: adds a single record
-     * 
-     * Command parsing (parts array indices):
-     *   parts[0] = "submit" (command keyword)
-     *   parts[1] = "multiple" OR player name
-     *   
-     * For "submit multiple" format:
-     *   parts[2] = file path
-     * 
-     * For single record format:
-     *   parts[1] = player name
-     *   parts[2] = continent (AFRICA, ASIA, ANTARCTICA, AUSTRALIA, EUROPE, NORTH_AMERICA, SOUTH_AMERICA)
-     *   parts[3] = score (integer)
-     *   parts[4] = damage taken (integer)
-     *   parts[5] = collectables (integer)
-     *   parts[6] = completion time (format: hhh:mm:ss)
-     * 
-     * Exceptions thrown:
-     *   IllegalArgumentException: if parts array length is incorrect, if "multiple" format is missing filepath,
-     *                             if single record format has wrong number of arguments, if score/damage/collectables
-     *                             are not valid integers, if time format is invalid (hhh:mm:ss), or if continent
-     *                             is not a valid enum value
-     *   IOException: if file cannot be read for "submit multiple" command
-     * 
-     * @param parts the parsed command array
-     * @throws IllegalArgumentException if command syntax is invalid
-     * @throws IOException if file cannot be read for submit multiple command
+     * Handles submit command: either loads records from file or delegates to single record submission.
+     * @param parts The command parts
+     * @throws IllegalArgumentException for invalid syntax
+     * @throws IOException if file read fails
      */
     private void handleSubmitCommand(String[] parts) throws IllegalArgumentException, IOException {
         if (parts.length < 2) {
@@ -201,24 +129,9 @@ public class Frontend implements FrontendInterface {
     }
 
     /**
-     * Handles submission of a single game record.
-     * 
-     * Command parsing (parts array indices):
-     *   parts[0] = "submit" (command keyword)
-     *   parts[1] = player name
-     *   parts[2] = continent (AFRICA, ASIA, ANTARCTICA, AUSTRALIA, EUROPE, NORTH_AMERICA, SOUTH_AMERICA)
-     *   parts[3] = score (integer)
-     *   parts[4] = damage taken (integer)
-     *   parts[5] = collectables (integer)
-     *   parts[6] = completion time (format: hhh:mm:ss)
-     * 
-     * Exceptions thrown:
-     *   IllegalArgumentException: if parts array length is incorrect, if score/damage/collectables
-     *                             are not valid integers, if time format is invalid (hhh:mm:ss), or if continent
-     *                             is not a valid enum value
-     * 
-     * @param parts the parsed command array
-     * @throws IllegalArgumentException if command syntax is invalid
+     * Validates and adds a single game record to the backend.
+     * @param parts The command parts
+     * @throws IllegalArgumentException for invalid syntax
      */
     private void handleSingleRecordSubmit(String[] parts) throws IllegalArgumentException {
         if (parts.length != 7) {
@@ -239,6 +152,7 @@ public class Frontend implements FrontendInterface {
                 "Completion time must be in format hhh:mm:ss!");
         }
 
+        // Parse score, damage taken, and collectables, throwing exception on invalid integers
         try {
             score = Integer.parseInt(parts[3]);
             damageT = Integer.parseInt(parts[4]);
@@ -248,36 +162,46 @@ public class Frontend implements FrontendInterface {
         }
 
         GameRecord.Continent continent = parseAndValidateContinent(continentStr, parts[2]);
-
         GameRecord record = new GameRecord(name, continent, score, damageT, collectables, completionTime);
         backend.addRecord(record);
         System.out.println("Successfully added record for " + name);
     }
 
+    /**
+     * Parses and validates an integer input, throwing IllegalArgumentException on failure.
+     * @param value The string to parse
+     * @param errorMessage The error message to use if parsing fails
+     * @throws IllegalArgumentException for invalid syntax
+     * @return The parsed integer value
+     */
+    private int parseIntegerOrThrow(String value, String errorMessage) throws IllegalArgumentException {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+    }
+
+    /**
+     * Sets the collectables range filter for records.
+     * @param parts The command parts
+     * @throws IllegalArgumentException for invalid syntax
+     */
     private void handleCollectablesCommand(String[] parts) throws IllegalArgumentException {
         if (parts.length < 2) {
             throw new IllegalArgumentException("Collectables command requires at least one argument");
         }
 
         if (parts.length == 2) {
-            int max;
-            try {
-                max = Integer.parseInt(parts[1]);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Collectables value must be a valid integer");
-            }
+            // Single value: collectables MAX
+            currentCollectablesHigh = parseIntegerOrThrow(parts[1], "Collectables value must be a valid integer");
             currentCollectablesLow = null;
-            currentCollectablesHigh = max;
             backend.getAndSetRange(currentCollectablesLow, currentCollectablesHigh);
-            System.out.println("Collectables filter set to maximum: " + max);
+            System.out.println("Collectables filter set to maximum: " + currentCollectablesHigh);
         } else if (parts.length == 4 && parts[2].equalsIgnoreCase("to")) {
-            int min, max;
-            try {
-                min = Integer.parseInt(parts[1]);
-                max = Integer.parseInt(parts[3]);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Collectables values must be valid integers");
-            }
+            // Range: collectables MIN to MAX
+            int min = parseIntegerOrThrow(parts[1], "Collectables values must be valid integers");
+            int max = parseIntegerOrThrow(parts[3], "Collectables values must be valid integers");
             if (min > max) {
                 throw new IllegalArgumentException("Minimum collectables cannot be greater than maximum");
             }
@@ -291,6 +215,11 @@ public class Frontend implements FrontendInterface {
         }
     }
 
+    /**
+     * Sets the location (continent) filter for records.
+     * @param parts The command parts
+     * @throws IllegalArgumentException for invalid syntax
+     */
     private void handleLocationCommand(String[] parts) throws IllegalArgumentException {
         if (parts.length < 2) {
             throw new IllegalArgumentException("Location command requires at least one continent argument");
@@ -306,26 +235,25 @@ public class Frontend implements FrontendInterface {
         System.out.println("Location filter set to: " + continentStr);
     }
 
+    /**
+     * Displays records by count or shows the top 10 fastest times.
+     * @param parts The command parts
+     * @throws IllegalArgumentException for invalid syntax
+     */
     private void handleShowCommand(String[] parts) throws IllegalArgumentException {
         if (parts.length < 2) {
             throw new IllegalArgumentException("Show command requires at least one argument");
         }
 
+        // Check if the user wants to show the fastest times
         if (parts[1].equalsIgnoreCase("fastest")) {
             if (parts.length != 3 || !parts[2].equalsIgnoreCase("times")) {
                 throw new IllegalArgumentException("Invalid show command. Use 'show fastest times'");
             }
             displayTopTenRecords();
         } else {
-            if (parts.length != 2) {
-                throw new IllegalArgumentException("Show command with count requires exactly one argument");
-            }
-            int maxCount;
-            try {
-                maxCount = Integer.parseInt(parts[1]);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Max count must be a valid integer");
-            }
+            // Show records with a maximum count limit
+            int maxCount = parseIntegerOrThrow(parts[1], "Max count must be a valid integer");
             if (maxCount < 0) {
                 throw new IllegalArgumentException("Max count cannot be negative");
             }
@@ -333,9 +261,12 @@ public class Frontend implements FrontendInterface {
         }
     }
 
+    /**
+     * Displays filtered records up to the specified count limit.
+     * @param maxCount The maximum number of records to display (0 for no limit)
+     */
     private void displayRecordsWithLimit(int maxCount) {
-        // Retrieve records based on the range filter previously set via handleCollectablesCommand
-        // and location filter set via handleLocationCommand
+        // Retrieve filtered records within the specified range
         List<String> records = backend.getAndSetRange(currentCollectablesLow, currentCollectablesHigh);
         if (records.isEmpty()) {
             System.out.println("No records found matching the current filters.");
@@ -351,6 +282,9 @@ public class Frontend implements FrontendInterface {
         System.out.println("Total records displayed: " + displayed);
     }
 
+    /**
+     * Displays the top 10 fastest records.
+     */
     private void displayTopTenRecords() {
         List<String> topTen = backend.getTopTen();
         if (topTen.isEmpty()) {
@@ -358,22 +292,19 @@ public class Frontend implements FrontendInterface {
             return;
         }
 
+        // Display the top 10 fastest records
         System.out.println("Top " + topTen.size() + " fastest records:");
-        int index = 1;
-        for (String record : topTen) {
-            System.out.println("  " + index + ". " + record);
-            index++;
+        for (int i = 0; i < topTen.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + topTen.get(i));
         }
     }
 
     /**
-     * Parses and validates a continent string against the GameRecord.Continent enum.
-     * Automatically converts spaces to underscores for user convenience.
-     * 
-     * @param continentStr the processed continent string (uppercase with spaces converted to underscores)
-     * @param originalInput the original user input (for error messages)
-     * @return the corresponding GameRecord.Continent enum value
-     * @throws IllegalArgumentException if the continent string does not match any valid continent
+     * Validates continent string against enum (spaces converted to underscores).
+     * @param continentStr The continent string to validate
+     * @param originalInput The original user input for error messaging
+     * @throws IllegalArgumentException for invalid syntax
+     * @return The corresponding GameRecord.Continent enum value
      */
     private GameRecord.Continent parseAndValidateContinent(String continentStr, String originalInput) throws IllegalArgumentException {
         try {
@@ -384,7 +315,13 @@ public class Frontend implements FrontendInterface {
         }
     }
 
+    /**
+     * Validates time format: hhh:mm:ss with valid hour, minute, and second ranges.
+     * @param time The time string to validate
+     * @return true if valid, false otherwise   
+     */
     private boolean isValidTimeFormat(String time) {
+        // Split the time string into parts and validate each component
         String[] parts = time.split(":");
         if (parts.length != 3) {
             return false;
