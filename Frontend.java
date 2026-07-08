@@ -123,18 +123,24 @@ public class Frontend implements FrontendInterface {
             String[] parts = command.split("\\s+");
             String commandType = parts[0].toLowerCase();
 
-            if (commandType.equals("submit")) {
-                handleSubmitCommand(parts);
-            } else if (commandType.equals("collectables")) {
-                handleCollectablesCommand(parts);
-            } else if (commandType.equals("location")) {
-                handleLocationCommand(parts);
-            } else if (commandType.equals("show")) {
-                handleShowCommand(parts);
-            } else if (commandType.equals("help")) {
-                showCommandInstructions();
-            } else {
-                throw new IllegalArgumentException("Unknown command: " + commandType);
+            switch (commandType) {
+                case "submit":
+                    handleSubmitCommand(parts);
+                    break;
+                case "collectables":
+                    handleCollectablesCommand(parts);
+                    break;
+                case "location":
+                    handleLocationCommand(parts);
+                    break;
+                case "show":
+                    handleShowCommand(parts);
+                    break;
+                case "help":
+                    showCommandInstructions();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown command: " + commandType);
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
