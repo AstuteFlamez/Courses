@@ -196,43 +196,67 @@ public class Frontend implements FrontendInterface {
                 throw new IOException("Failed to read file: " + parts[2] + " - " + e.getMessage());
             }
         } else {
-            if (parts.length != 7) {
-                throw new IllegalArgumentException(
-                    "Submit command requires: submit NAME CONTINENT SCORE DAMAGE_TAKEN COLLECTABLES COMPLETION_TIME");
-            }
-
-            String name = parts[1];
-            String continentStr = parts[2].toUpperCase();
-            int score;
-            int damageT;
-            int collectables;
-            String completionTime = parts[6];
-
-            try {
-                score = Integer.parseInt(parts[3]);
-                damageT = Integer.parseInt(parts[4]);
-                collectables = Integer.parseInt(parts[5]);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Score, damage taken, and collectables must be valid integers!");
-            }
-
-            if (!isValidTimeFormat(completionTime)) {
-                throw new IllegalArgumentException(
-                    "Completion time must be in format hhh:mm:ss!");
-            }
-
-            GameRecord.Continent continent;
-            try {
-                continent = GameRecord.Continent.valueOf(continentStr);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Invalid continent: " + parts[2] +
-                    ". Valid options: AFRICA, ASIA, ANTARCTICA, AUSTRALIA, EUROPE, NORTH_AMERICA, SOUTH_AMERICA");
-            }
-
-            GameRecord record = new GameRecord(name, continent, score, damageT, collectables, completionTime);
-            backend.addRecord(record);
-            System.out.println("Successfully added record for " + name);
+            handleSingleRecordSubmit(parts);
         }
+    }
+
+    /**
+     * Handles submission of a single game record.
+     * 
+     * Command parsing (parts array indices):
+     *   parts[0] = "submit" (command keyword)
+     *   parts[1] = player name
+     *   parts[2] = continent (AFRICA, ASIA, ANTARCTICA, AUSTRALIA, EUROPE, NORTH_AMERICA, SOUTH_AMERICA)
+     *   parts[3] = score (integer)
+     *   parts[4] = damage taken (integer)
+     *   parts[5] = collectables (integer)
+     *   parts[6] = completion time (format: hhh:mm:ss)
+     * 
+     * Exceptions thrown:
+     *   IllegalArgumentException: if parts array length is incorrect, if score/damage/collectables
+     *                             are not valid integers, if time format is invalid (hhh:mm:ss), or if continent
+     *                             is not a valid enum value
+     * 
+     * @param parts the parsed command array
+     * @throws IllegalArgumentException if command syntax is invalid
+     */
+    private void handleSingleRecordSubmit(String[] parts) throws IllegalArgumentException {
+        if (parts.length != 7) {
+            throw new IllegalArgumentException(
+                "Submit command requires: submit NAME CONTINENT SCORE DAMAGE_TAKEN COLLECTABLES COMPLETION_TIME");
+        }
+
+        String name = parts[1];
+        String continentStr = parts[2].toUpperCase();
+        int score;
+        int damageT;
+        int collectables;
+        String completionTime = parts[6];
+
+        try {
+            score = Integer.parseInt(parts[3]);
+            damageT = Integer.parseInt(parts[4]);
+            collectables = Integer.parseInt(parts[5]);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Score, damage taken, and collectables must be valid integers!");
+        }
+
+        if (!isValidTimeFormat(completionTime)) {
+            throw new IllegalArgumentException(
+                "Completion time must be in format hhh:mm:ss!");
+        }
+
+        GameRecord.Continent continent;
+        try {
+            continent = GameRecord.Continent.valueOf(continentStr);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid continent: " + parts[2] +
+                ". Valid options: AFRICA, ASIA, ANTARCTICA, AUSTRALIA, EUROPE, NORTH_AMERICA, SOUTH_AMERICA");
+        }
+
+        GameRecord record = new GameRecord(name, continent, score, damageT, collectables, completionTime);
+        backend.addRecord(record);
+        System.out.println("Successfully added record for " + name);
     }
 
     private void handleCollectablesCommand(String[] parts) throws IllegalArgumentException {
