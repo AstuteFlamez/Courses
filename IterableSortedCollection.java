@@ -1,7 +1,8 @@
 /**
  * This interface defines an ADT for data structures that support storing a 
  * collection of comparable values in their natural ordering (similar to the
- * SortedCollection interface), and that are also iterable.
+ * SortedCollection interface), and that are also iterable. The iterators
+ * for this collection return the values in their natural ordering.
  */
 public interface IterableSortedCollection<T extends Comparable<T>>
     extends SortedCollection<T>, Iterable<T> {
