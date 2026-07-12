@@ -5,8 +5,8 @@ import java.util.Scanner;
  */
 public class App {
     public static void main(String[] args) {
-        IterableSortedCollection<GameRecord> tree = new Tree_Placeholder(); 
-        BackendInterface backend = new Backend_Placeholder(tree);
+        IterableSortedCollection<GameRecord> tree = new IterableRedBlackTree<>(); 
+        BackendInterface backend = new Backend(tree);
         Scanner in = new Scanner(System.in);
         FrontendInterface frontend = new Frontend(in,backend);
 
