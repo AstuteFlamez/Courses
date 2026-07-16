@@ -3,6 +3,10 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 /**
  * This class extends the BaseGraph data structure with additional methods for
  * computing the total cost and list of node data along the shortest path
@@ -93,7 +97,43 @@ public class DijkstraGraph<NodeType, EdgeType extends Number>
      * @throws NullPointerException if the start or end node are null
      */
     protected SearchNode computeShortestPath(Node start, Node end) {
-        return null;
+        // guard against null start/end nodes
+        if (start == null || end == null)
+            throw new NullPointerException("start and end nodes must not be null");
+
+        // frontier of candidate paths, ordered by lowest total cost (highest priority)
+        PriorityQueue<SearchNode> frontier = new PriorityQueue<>();
+        // set of nodes whose shortest path has already been finalized (visited)
+        PlaceholderMap<Node, Node> settled = new PlaceholderMap<>();
+
+        // seed the search with the zero-cost path consisting only of the start node
+        frontier.add(new SearchNode(start));
+
+        while (!frontier.isEmpty()) {
+            // the cheapest unsettled path is guaranteed to be optimal for its end node
+            SearchNode current = frontier.poll();
+
+            // if we've already finalized this node, this is a stale/longer path: skip it
+            if (settled.containsKey(current.node))
+                continue;
+            // otherwise, this path is the shortest one to current.node: finalize it
+            settled.put(current.node, current.node);
+
+            // as soon as the end node is finalized, we've found its shortest path
+            if (current.node == end)
+                return current;
+
+            // relax every outgoing edge to build longer candidate paths
+            for (Edge edge : current.node.edgesLeaving) {
+                // only extend toward nodes that haven't been finalized yet
+                if (!settled.containsKey(edge.succ))
+                    frontier.add(new SearchNode(current, edge));
+            }
+        }
+
+        // the frontier emptied without ever reaching end: no directed path exists
+        throw new NoSuchElementException(
+                "No path exists from " + start.data + " to " + end.data);
     }
 
     /**
@@ -112,7 +152,21 @@ public class DijkstraGraph<NodeType, EdgeType extends Number>
      * @throws NullPointerException if the start or end node are null
      */
     public List<NodeType> shortestPathData(NodeType start, NodeType end) {
-        return null;
+        // look up the nodes; MapADT.get throws NoSuchElementException when a
+        // value is missing and NullPointerException when the key is null,
+        // which matches the exception behavior required for this method
+        Node startNode = nodes.get(start);
+        Node endNode = nodes.get(end);
+
+        // compute the shortest path (throws NoSuchElementException if unreachable)
+        SearchNode endSearch = computeShortestPath(startNode, endNode);
+
+        // the predecessor chain runs end -> ... -> start, so build the list by
+        // repeatedly inserting at the front to end up with start -> ... -> end
+        LinkedList<NodeType> path = new LinkedList<>();
+        for (SearchNode current = endSearch; current != null; current = current.pred)
+            path.addFirst(current.node.data);
+        return path;
     }
 
     /**
@@ -129,7 +183,95 @@ public class DijkstraGraph<NodeType, EdgeType extends Number>
      * @throws NullPointerException if the start or end node are null
      */
     public double shortestPathCost(NodeType start, NodeType end) {
-        return Double.NaN;
+        // look up the nodes (throws NoSuchElementException / NullPointerException as above)
+        Node startNode = nodes.get(start);
+        Node endNode = nodes.get(end);
+        // the finalized SearchNode's cost is the total cost of the shortest path
+        return computeShortestPath(startNode, endNode).cost;
+    }
+
+    // Part 1 (Deadline Thu Jul 16)
+
+    /**
+     * Builds the directed graph used by the tests below. 
+     *
+     * @return a DijkstraGraph populated with the lecture's nodes and edges
+     */
+    private DijkstraGraph<String, Integer> makeLectureGraph() {
+        DijkstraGraph<String, Integer> graph = new DijkstraGraph<>();
+        
+        graph.insertNode("A");
+        graph.insertNode("B");
+        graph.insertNode("C");
+        graph.insertNode("D");
+        graph.insertNode("E");
+        
+        graph.insertEdge("A", "C", 1);
+        graph.insertEdge("C", "A", 1);
+        graph.insertEdge("A", "B", 15);
+        graph.insertEdge("B", "A", 15);
+        graph.insertEdge("A", "D", 4);
+        graph.insertEdge("D", "A", 4);
+        graph.insertEdge("D", "B", 2);
+        graph.insertEdge("B", "D", 2);
+        graph.insertEdge("B", "E", 1);
+        graph.insertEdge("E", "B", 1);
+        graph.insertEdge("C", "E", 10);
+        graph.insertEdge("E", "C", 10);
+        graph.insertEdge("D", "E", 10);
+        graph.insertEdge("E", "D", 10);
+        return graph;
+    }
+
+    /**
+     * Test 1: reproduces the exact example traced through in lecture
+     */
+    @Test
+    public void testLecturePathAtoE() {
+        DijkstraGraph<String, Integer> graph = makeLectureGraph();
+
+        // cost of the shortest path A -> E should be 4 + 2 + 1 = 7
+        assertEquals(7.0, graph.shortestPathCost("A", "E"));
+
+        // the shortest path should visit A, D, B, E
+        List<String> path = graph.shortestPathData("A", "E");
+        assertEquals(List.of("A", "D", "B", "E"), path);
+    }
+
+    /**
+     * Test 2: checks the cost and node sequence of the 
+     * shortest path between a different start and end node
+     */
+    @Test
+    public void testLecturePathDtoC() {
+        DijkstraGraph<String, Integer> graph = makeLectureGraph();
+
+        // cost of the shortest path D -> C should be 4 + 1 = 5
+        assertEquals(5.0, graph.shortestPathCost("D", "C"));
+
+        // the shortest path should visit D, A, C
+        List<String> path = graph.shortestPathData("D", "C");
+        assertEquals(List.of("D", "A", "C"), path);
+    }
+
+    /**
+     * Test 3: checks the behavior when both nodes 
+     * exist in the graph but there is no sequence 
+     * of directed edges connecting the start to the end
+     */
+    @Test
+    public void testNoPathBetweenExistingNodes() {
+        DijkstraGraph<String, Integer> graph = makeLectureGraph();
+
+        // add a node F connected TO the graph (F -> A) but not reachable FROM it
+        graph.insertNode("F");
+        graph.insertEdge("F", "A", 1);
+
+        // both A and F exist, but no directed path leads from A to F
+        assertThrows(NoSuchElementException.class,
+                () -> graph.shortestPathCost("A", "F"));
+        assertThrows(NoSuchElementException.class,
+                () -> graph.shortestPathData("A", "F"));
     }
 
 }
