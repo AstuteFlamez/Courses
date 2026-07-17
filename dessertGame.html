@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <title>Dessert in the Desert Browser Game</title>
+    <style>
+      button {
+        color: blanchedalmond;
+        background-color: chocolate;
+        border-color: chocolate;
+        position: absolute;
+      }
+      body {
+        background-color: SandyBrown;
+
+      }
+    </style>
+    <script>
+      function randomizeButtonPositions() {
+        let buttons = document.querySelectorAll("FIXME");
+        buttons.forEach( (b) => {
+          b.style.left = (Math.random()*80+10)+"%";
+          b.style.top = (Math.random()*80+10)+"%";
+        } );
+      }
+    </script>
+    <meta name="author" content="YOUR_NETID">
+  </head>
+  <body onload="randomizeButtonPositions()">
+    <p>Score: 0</p>
+    <button>Dessert</button>
+  </body>
+</html>
