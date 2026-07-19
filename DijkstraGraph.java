@@ -1,11 +1,11 @@
-import java.util.PriorityQueue;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.NoSuchElementException;
-
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.List;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.NoSuchElementException;
 
 /**
  * This class extends the BaseGraph data structure with additional methods for
@@ -97,41 +97,27 @@ public class DijkstraGraph<NodeType, EdgeType extends Number>
      * @throws NullPointerException if the start or end node are null
      */
     protected SearchNode computeShortestPath(Node start, Node end) {
-        // guard against null start/end nodes
         if (start == null || end == null)
             throw new NullPointerException("start and end nodes must not be null");
 
-        // frontier of candidate paths, ordered by lowest total cost (highest priority)
         PriorityQueue<SearchNode> frontier = new PriorityQueue<>();
-        // set of nodes whose shortest path has already been finalized (visited)
         PlaceholderMap<Node, Node> settled = new PlaceholderMap<>();
-
-        // seed the search with the zero-cost path consisting only of the start node
         frontier.add(new SearchNode(start));
 
         while (!frontier.isEmpty()) {
-            // the cheapest unsettled path is guaranteed to be optimal for its end node
             SearchNode current = frontier.poll();
-
-            // if we've already finalized this node, this is a stale/longer path: skip it
             if (settled.containsKey(current.node))
-                continue;
-            // otherwise, this path is the shortest one to current.node: finalize it
+                continue; // stale, longer path to an already finalized node
             settled.put(current.node, current.node);
 
-            // as soon as the end node is finalized, we've found its shortest path
             if (current.node == end)
                 return current;
 
-            // relax every outgoing edge to build longer candidate paths
-            for (Edge edge : current.node.edgesLeaving) {
-                // only extend toward nodes that haven't been finalized yet
+            for (Edge edge : current.node.edgesLeaving)
                 if (!settled.containsKey(edge.succ))
                     frontier.add(new SearchNode(current, edge));
-            }
         }
 
-        // the frontier emptied without ever reaching end: no directed path exists
         throw new NoSuchElementException(
                 "No path exists from " + start.data + " to " + end.data);
     }
@@ -152,20 +138,13 @@ public class DijkstraGraph<NodeType, EdgeType extends Number>
      * @throws NullPointerException if the start or end node are null
      */
     public List<NodeType> shortestPathData(NodeType start, NodeType end) {
-        // look up the nodes; MapADT.get throws NoSuchElementException when a
-        // value is missing and NullPointerException when the key is null,
-        // which matches the exception behavior required for this method
         Node startNode = nodes.get(start);
         Node endNode = nodes.get(end);
-
-        // compute the shortest path (throws NoSuchElementException if unreachable)
         SearchNode endSearch = computeShortestPath(startNode, endNode);
 
-        // the predecessor chain runs end -> ... -> start, so build the list by
-        // repeatedly inserting at the front to end up with start -> ... -> end
         LinkedList<NodeType> path = new LinkedList<>();
         for (SearchNode current = endSearch; current != null; current = current.pred)
-            path.addFirst(current.node.data);
+            path.addFirst(current.node.data); // reverse the end->start chain
         return path;
     }
 
@@ -183,10 +162,8 @@ public class DijkstraGraph<NodeType, EdgeType extends Number>
      * @throws NullPointerException if the start or end node are null
      */
     public double shortestPathCost(NodeType start, NodeType end) {
-        // look up the nodes (throws NoSuchElementException / NullPointerException as above)
         Node startNode = nodes.get(start);
         Node endNode = nodes.get(end);
-        // the finalized SearchNode's cost is the total cost of the shortest path
         return computeShortestPath(startNode, endNode).cost;
     }
 
