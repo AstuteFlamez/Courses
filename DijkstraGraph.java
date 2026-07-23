@@ -88,6 +88,17 @@ public class DijkstraGraph<NodeType, EdgeType extends Number>
      * shortest path that is found: it's cost is the cost of that shortest path,
      * and the nodes linked together through predecessor references represent
      * all of the nodes along that shortest path (ordered from end to start).
+     * 
+     * log(E) ≈ log(V) for a connected graph, so the overall time complexity of this
+     * Complexity: E x Log(E) = O(E log V)
+     * Placeholder map uses HashMap -> lookups are only O(1)
+     * 
+     * (number of operations) × (cost each)
+     *         2E             ×    log E     =  O(E log E)
+     * frontier.add() and frontier.poll()
+     * 
+     * BST turns graph into increasing order which is basically a LinkedList which has O(n)
+     * A self balancing tree like AVL or Red-Black Tree fixes this
      *
      * @param start the starting node for the path
      * @param end   the destination node for the path
@@ -106,14 +117,14 @@ public class DijkstraGraph<NodeType, EdgeType extends Number>
 
         while (!frontier.isEmpty()) {
             SearchNode current = frontier.poll();
-            if (settled.containsKey(current.node))
-                continue; // stale, longer path to an already finalized node
-            settled.put(current.node, current.node);
+            if (settled.containsKey(current.node)) // placeholder map already has current node
+                continue; 
+            settled.put(current.node, current.node); // add current node to the settled set
 
             if (current.node == end)
-                return current;
+                return current; // escape method
 
-            for (Edge edge : current.node.edgesLeaving)
+            for (Edge edge : current.node.edgesLeaving) // add all new edges of a node to priority queue
                 if (!settled.containsKey(edge.succ))
                     frontier.add(new SearchNode(current, edge));
         }
@@ -247,8 +258,14 @@ public class DijkstraGraph<NodeType, EdgeType extends Number>
         // both A and F exist, but no directed path leads from A to F
         assertThrows(NoSuchElementException.class,
                 () -> graph.shortestPathCost("A", "F"));
+        // lambda expression delays call so that the exception 
+        // can be caught and tested with a try / catch
         assertThrows(NoSuchElementException.class,
                 () -> graph.shortestPathData("A", "F"));
+
+
+        // assertThrows(NoSuchElementException.class, graph.shortestPathCost("A", "F"));
+        // without () -> , java runs shortestPathCost() first and crashes
     }
 
 }
