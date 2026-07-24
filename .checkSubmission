@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+JSX_GLOB="src/*.jsx"
+
+# We scan the student's JSX for the Solid idioms they had to add. To avoid being
+# fooled by idioms that appear in COMMENTS (the starter's TODO notes mention
+# setScore, setInterval, etc.), first strip // line comments and /* ... */ block
+# comments into a scratch file and scan THAT -- otherwise the blank starter
+# passes. This mirrors the comment-stripping in gradeOneSubmission.
+STRIPPED_SRC="$(mktemp)"
+trap 'rm -f "$STRIPPED_SRC"' EXIT
+files=( $JSX_GLOB )
+if [[ -e "${files[0]}" ]]; then
+    perl -0777 -pe 's{/\*.*?\*/}{}gs; s{//[^\n]*}{}g' "${files[@]}" > "$STRIPPED_SRC" 2>/dev/null
+fi
+
+# Part 1: the score must be reactive.
+if [[ $(grep -c "setScore" "$STRIPPED_SRC" 2>/dev/null) -lt 1 ]]; then
+    echo "Warning Submission Incomplete: could not find setScore - is the score a signal yet?"
+    exit 1
+fi
+
+# Part 2: there must be a countdown timer.
+if [[ $(grep -c "setInterval" "$STRIPPED_SRC" 2>/dev/null) -lt 1 ]]; then
+    echo "Warning Submission Incomplete: could not find the countdown timer (setInterval)"
+    exit 1
+fi
+
+echo "Submission Passed Basic Scan"
+exit 0
