@@ -1,8 +1,6 @@
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
-import java.util.NoSuchElementException;
-
 /**
  * This class extends the HashTableMap class to run submission checks on it.
  */
