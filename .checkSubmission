@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+if [[ ! -f Makefile ]]; then
+    echo "Warning Submission Incomplete: failed to find Makefile inside your assignment folder"
+    exit 1
+fi
+
+if [[ $(grep -Pc "\?\?\?" Makefile) -gt 0 ]]; then
+    echo "Warning Submission Incomplete: found ??? in Makefile, but all of those placeholders should be replaced with regex"
+    exit 1
+fi
+
+P1=$(make p1 2> /dev/null| wc -l)
+P1=$(echo "$P1 - 1" | bc 2> /dev/null)
+if [[ $P1 -eq 9090 ]]; then
+    echo "\"make p1\": command returns the expected number of matches (9090)"
+else
+    echo "\"make p1\": expected 9090 matches, but got ${P1}"
+fi
+
+P2=$(make p2 2> /dev/null| wc -l)
+P2=$(echo "$P2 - 1" | bc 2> /dev/null)
+if [[ $P2 -eq 7 ]]; then
+    echo "\"make p2\": command returns the expected number of matches (7)"
+else
+    echo "\"make p2\": expected 7 matches, but got ${P2}"
+fi
+
+P3=$(make p3 2> /dev/null| wc -l)
+P3=$(echo "$P3 - 1" | bc 2> /dev/null)
+if [[ $P3 -eq 106 ]]; then # changed from 106 to this range
+    echo "\"make p3\": command returns the expected number of matches (106)"
+else
+    echo "\"make p3\": expected 106 matches, but got ${P3}"
+fi
+
+P4=$(make p4 2> /dev/null| wc -l)
+P4=$(echo "$P4 - 1" | bc 2> /dev/null)
+if [[ $P4 -eq 2 ]]; then
+    echo "\"make p4\": command returns the expected number of matches (2)"
+else
+    echo "\"make p4\": expected 2 matches, but got ${P4}"
+fi
+
+P5=$(make p5 2> /dev/null| wc -l)
+P5=$(echo "$P5 - 1" | bc 2> /dev/null)
+if [[ $P5 -eq 13404  ]]; then
+    echo "\"make p5\": command returns the expected number of matches (13404)"
+else
+    echo "\"make p5\": expected 13404 matches, but got ${P5}"
+    exit 1
+fi
+
+echo "Submission Passed Check"
+exit 0
