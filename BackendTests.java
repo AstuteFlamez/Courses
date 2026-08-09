@@ -110,4 +110,83 @@ public class BackendTests {
         () -> backend.getReachableFromWithin("Camp Randall", 10.0),
         "a start that is not in the graph should throw");
   }
+
+  /**
+   * Integration test using the real DijkstraGraph implementation to verify
+   * that shortest-path location lookup works against the actual graph code.
+   */
+  @Test
+  public void roleTest4IntegrationBackendUsesDijkstraGraph() throws IOException {
+    Backend backend = new Backend(new DijkstraGraph<>());
+
+    // load graph data through the backend and ensure graph nodes are created
+    backend.loadGraphData(writeTestFile());
+    assertEquals(3, backend.getListOfAll().size(), "three locations should be loaded");
+
+    // verify the actual computed shortest path on the real Dijkstra graph
+    List<String> actualPath = backend.findLocationsOnShortestPath("Union South",
+        "Weeks Hall for Geological Sciences");
+    assertEquals(List.of("Union South", "Computer Sciences and Statistics",
+        "Weeks Hall for Geological Sciences"), actualPath);
+  }
+
+  /**
+   * Integration test that verifies reachable locations use the real backend
+   * with the actual graph implementation rather than a placeholder.
+   */
+  @Test
+  public void roleTest5IntegrationBackendReachableFromWithin() throws IOException {
+    Backend backend = new Backend(new DijkstraGraph<>());
+
+    // load the same graph data so reachability is based on actual edge weights
+    backend.loadGraphData(writeTestFile());
+
+    List<String> nearby = backend.getReachableFromWithin("Union South", 1.0);
+    assertTrue(nearby.contains("Union South"), "start should always be reachable");
+    assertTrue(nearby.contains("Computer Sciences and Statistics"),
+        "the immediate neighbor should be reachable within 1.0 minute");
+    assertFalse(nearby.contains("Weeks Hall for Geological Sciences"),
+        "the far location should not be reachable within 1.0 minute");
+  }
+
+  /**
+   * Integration test that exercises both Backend and Frontend together with real
+   * graph data and verifies the HTML output includes the expected path.
+   */
+  @Test
+  public void roleTest6IntegrationFrontendShortestPathResponse() throws IOException {
+    Backend backend = new Backend(new DijkstraGraph<>());
+    backend.loadGraphData(writeTestFile());
+    Frontend frontend = new Frontend(backend);
+
+    // produce HTML from the frontend using the real backend
+    String html = frontend.generateShortestPathResponseHTML(
+        "Union South", "Weeks Hall for Geological Sciences");
+
+    assertTrue(html.contains("<li>Union South</li>"),
+        "HTML should include the start location");
+    assertTrue(html.contains("<li>Weeks Hall for Geological Sciences</li>"),
+        "HTML should include the end location");
+    assertTrue(html.contains("Total travel time: 3.0"),
+        "HTML should include the correct total travel time");
+  }
+
+  /**
+   * Integration test that exercises the real frontend response for reachable
+   * locations and verifies that actual graph data is reflected.
+   */
+  @Test
+  public void roleTest7IntegrationFrontendReachableFromWithinResponse() throws IOException {
+    Backend backend = new Backend(new DijkstraGraph<>());
+    backend.loadGraphData(writeTestFile());
+    Frontend frontend = new Frontend(backend);
+
+    // generate the reachable-from-within response HTML from the real code path
+    String html = frontend.generateReachableFromWithinResponseHTML("Union South", 3.0);
+
+    assertTrue(html.contains("Locations reachable from Union South within 3.0 minutes"),
+        "HTML should describe the reachable-from-within query");
+    assertTrue(html.contains("<li>Weeks Hall for Geological Sciences</li>"),
+        "The far location should be included when the time limit is sufficient");
+  }
 }
