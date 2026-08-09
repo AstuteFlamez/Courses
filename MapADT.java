@@ -10,8 +10,9 @@ public interface MapADT<KeyType, ValueType> {
     /**
      * Adds a new key,value pair/mapping to this collection.
      * @param key the key of the key,value pair
-     * @param value the value that key maps to
-     * @throws IllegalArgumentException if key already maps to a value
+     * @param value the value that key maps to (may be null)
+     * @throws IllegalArgumentException if key already maps to a value without 
+     *         making any changes to the table
      * @throws NullPointerException if key is null
      */
     public void put(KeyType key, ValueType value) throws IllegalArgumentException;
@@ -19,8 +20,9 @@ public interface MapADT<KeyType, ValueType> {
     /**
      * Checks whether a key maps to a value in this collection.
      * @param key the key to check
-     * @return true if the key maps to a value, and false is the
-     *         key doesn't map to a value
+     * @throws NullPointerException if key is null
+     * @return true if the key maps to a value, and false is the key doesn't
+     *         map to a value
      */
     public boolean containsKey(KeyType key);
 
@@ -29,6 +31,7 @@ public interface MapADT<KeyType, ValueType> {
      * @param key the key to look up
      * @return the value that key maps to
      * @throws NoSuchElementException when key is not stored in this collection
+     * @throws NullPointerException if key is null
      */
     public ValueType get(KeyType key) throws NoSuchElementException;
 
@@ -37,11 +40,13 @@ public interface MapADT<KeyType, ValueType> {
      * @param key the key whose mapping to remove
      * @return the value that the removed key mapped to
      * @throws NoSuchElementException when key is not stored in this collection
+     * @throws NullPointerException if key is null
      */
     public ValueType remove(KeyType key) throws NoSuchElementException;
 
     /**
-     * Removes all key,value pairs from this collection.
+     * Removes all key,value pairs from this collection without changing the
+     * capacity of the underlying array.
      */
     public void clear();
 
@@ -64,4 +69,3 @@ public interface MapADT<KeyType, ValueType> {
     public List<KeyType> getKeys();
 
 }
-
