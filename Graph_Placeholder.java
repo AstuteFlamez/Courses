@@ -87,4 +87,10 @@ public class Graph_Placeholder implements GraphADT<String, Double> {
         return sum;
     }
 
+    @Override
+    public List<String> getAllNodes() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAllNodes'");
+    }
+
 }

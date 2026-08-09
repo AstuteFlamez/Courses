@@ -209,7 +209,7 @@ public class HashTableMap<KeyType, ValueType> implements MapADT<KeyType, ValueTy
      * Retrieves this collection's keys.
      */
     @Override
-    public List<KeyType> getKeys() {
+    public LinkedList<KeyType> getKeys() {
         LinkedList<KeyType> keys = new LinkedList<KeyType>();
         for (int i = 0; i < table.length; i++) {
             LinkedList<Pair> chain = table[i];

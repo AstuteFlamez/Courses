@@ -59,7 +59,7 @@ public class DijkstraGraph<NodeType, EdgeType extends Number>
      * Constructor that sets the map that the graph uses.
      */
     public DijkstraGraph() {
-        super(new PlaceholderMap<>());
+        super(new HashTableMap<NodeType, Node>());
     }
 
     /**
@@ -101,14 +101,14 @@ public class DijkstraGraph<NodeType, EdgeType extends Number>
             throw new NullPointerException("start and end nodes must not be null");
 
         PriorityQueue<SearchNode> frontier = new PriorityQueue<>();
-        PlaceholderMap<Node, Node> settled = new PlaceholderMap<>();
+        MapADT<Node, SearchNode> settled = new HashTableMap<>();
         frontier.add(new SearchNode(start));
 
         while (!frontier.isEmpty()) {
             SearchNode current = frontier.poll();
             if (settled.containsKey(current.node))
                 continue; // stale, longer path to an already finalized node
-            settled.put(current.node, current.node);
+            settled.put(current.node, current);
 
             if (current.node == end)
                 return current;
