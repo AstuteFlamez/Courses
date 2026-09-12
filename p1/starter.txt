@@ -1,0 +1,27 @@
+Script started on 2026-09-12 13:39:59-05:00 [TERM="xterm-256color" TTY="/dev/pts/2" COLUMNS="160" LINES="13"]
+[?2004h[busman4@vm-instunix-19] (1)$ pwd
+[?2004l
+/home/busman4/private/CS354/p1
+[?2004h[busman4@vm-instunix-19] (2)$ ls
+[?2004l
+[0m[01;34mbackups[0m/  [01;32mccret[0m*  ccret.c  ccret.h  starter.txt
+[?2004h[busman4@vm-instunix-19] (3)$ [7mhead ccret.c[27mhead ccret.c
+[?2004l
+/*======================================================================
+ * PROJECT: C-cret Codex
+ *----------------------------------------------------------------------
+ * AUTHOR: Bilal Usman
+ * EMAIL: busman4@wisc.edu
+ * ADDITIONAL SOURCES: NONE
+ * provided by course staff) that were used to complete this code here>
+ * FILE: ccret.c
+ * COURSE: COMP SCI 354 - Fall 2026
+ * INSTRUCTOR: Dahl
+[?2004h[busman4@vm-instunix-19] (4)$ [7mls backups[27mls backups
+[?2004l
+ccret.c
+[?2004h[busman4@vm-instunix-19] (5)$ [7mexit[27mexit
+[?2004l
+exit
+
+Script done on 2026-09-12 13:40:20-05:00 [COMMAND_EXIT_CODE="0"]
