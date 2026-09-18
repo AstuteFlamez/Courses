@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Red-Black Tree Insertion</title>
+
+    <meta name="author" content="Bilal Usman">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <h1 id="main-title">Red-Black Tree Insertion</h1>
+
+    <p>
+        A <strong>red-black tree</strong> is a self-balancing binary search tree.
+        Red-black trees guarantee <em>O(log n)</em> search,
+        insertion, and deletion even in the worst case.
+    </p>
+
+    <img id="diagram"
+         src="https://commons.wikimedia.org/wiki/Special:FilePath/Red-black_tree_example.svg?width=700"
+         alt="Diagram of a red-black tree with red and black colored nodes">
+    <p class="caption">Example of a red-black tree. Image: Wikimedia Commons.</p>
+
+    <h2 class="section-heading">The Red-Black Properties</h2>
+    <p>Every valid red-black tree must satisfy all of these rules:</p>
+
+    <ul>
+        <li>1. Every node is colored either red or black.</li>
+        <li>2. The root node is always black.</li>
+        <li>3. A red node cannot have a red child (no two reds in a row).</li>
+        <li>4. Every path from a node down to a null leaf passes through the same number of black nodes.</li>
+    </ul>
+
+    <h2 class="section-heading">How Insertion Works</h2>
+    <p>Inserting a new value follows these steps:</p>
+
+    <ol>
+        <li>Insert the new node exactly like a normal binary search tree insertion.</li>
+        <li>Color the newly inserted node red.</li>
+        <li>If the new red node's parent is also red, a property is violated and must be fixed.</li>
+        <li>Look at the "uncle" node: if it is red, recolor the parent, uncle, and grandparent.</li>
+        <li>If the uncle is black, perform a rotation and recolor.</li>
+        <li>Finally, always make sure the root is colored black.</li>
+    </ol>
+
+    <h3 class="section-heading">Why Rebalancing Matters</h3>
+    <ul>
+        <li>Keeps the tree's height close to log(n).</li>
+        <li>Requires only a constant number of rotations per insertion.</li>
+        <li>Used in real systems.</li>
+    </ul>
+
+    <h2 class="section-heading">Learn More</h2>
+    <p>
+        Read more about red-black trees on
+        <a href="https://en.wikipedia.org/wiki/Red%E2%80%93black_tree" target="_blank">Wikipedia</a>.
+    </p>
+</body>
+</html>
