@@ -1,0 +1,15 @@
+stages:
+    - submission feedback
+submission feedback:
+    stage: submission feedback
+    tags:
+        - csl
+    # NOTE: unlike earlier assignments, A07 is a Node/Vite project. The
+    # .checkSubmission scan below is build-free (just grep), so any image with
+    # bash works. If you later want CI to actually run `npm run build`, switch
+    # to a Node-capable image and add the build step.
+    image: registry.doit.wisc.edu/cdis/cs/courses/cs400/containers:A03
+    timeout: 5m
+    script:
+        - chmod a+x .checkSubmission
+        - ./.checkSubmission
