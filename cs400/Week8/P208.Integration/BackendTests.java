@@ -1,0 +1,192 @@
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.NoSuchElementException;
+import org.junit.jupiter.api.Test;
+
+/**
+ * Tests for the Backend class
+ */
+public class BackendTests {
+
+  /**
+   * Writes a small dot file using the three locations that Graph_Placeholder is
+   * hard-coded with, so that loading it does not depend on the placeholder
+   * being able to insert new nodes
+   *
+   * @return the path of the file that was written
+   * @throws IOException if the file cannot be written
+   */
+  private String writeTestFile() throws IOException {
+    File file = File.createTempFile("backendtests", ".dot");
+    file.deleteOnExit();
+    try (PrintWriter out = new PrintWriter(file)) {
+      out.println("digraph campus {");
+      out.println("\t\"Union South\" -> \"Computer Sciences and Statistics\" [seconds=1.0];");
+      out.println("\t\"Computer Sciences and Statistics\" -> "
+          + "\"Weeks Hall for Geological Sciences\" [seconds=2.0];");
+      out.println("}");
+    }
+    return file.getAbsolutePath();
+  }
+
+  /**
+   * Checks that loadGraphData reads locations out of a dot file and that
+   * getListOfAll then reports them, and that asking for a file that is not
+   * there reports the problem instead of failing quietly
+   */
+  @Test
+  public void roleTest1() throws IOException {
+    Backend backend = new Backend(new Graph_Placeholder());
+
+    assertTrue(backend.getListOfAll().isEmpty(), "list should be empty before loading");
+
+    backend.loadGraphData(writeTestFile());
+    List<String> all = backend.getListOfAll();
+
+    assertEquals(3, all.size(), "three distinct locations appear in the file");
+    assertTrue(all.contains("Union South"));
+    assertTrue(all.contains("Computer Sciences and Statistics"));
+    assertTrue(all.contains("Weeks Hall for Geological Sciences"));
+
+    // a location that is named twice in the file should only be listed once
+    assertEquals(1, all.stream().filter(s -> s.equals("Computer Sciences and Statistics")).count());
+
+    assertThrows(IOException.class, () -> backend.loadGraphData("no_such_file.dot"),
+        "a missing file should throw IOException");
+  }
+
+  /**
+   * Checks that findLocationsOnShortestPath returns the locations in order and
+   * that findTimesOnShortestPath returns one time for each step between them
+   */
+  @Test
+  public void roleTest2() {
+    Backend backend = new Backend(new Graph_Placeholder());
+
+    List<String> path = backend.findLocationsOnShortestPath("Union South",
+        "Weeks Hall for Geological Sciences");
+    assertEquals(List.of("Union South", "Computer Sciences and Statistics",
+        "Weeks Hall for Geological Sciences"), path);
+
+    // the placeholder charges 1.0 for the first step and 2.0 for the second
+    List<Double> times = backend.findTimesOnShortestPath("Union South",
+        "Weeks Hall for Geological Sciences");
+    assertEquals(List.of(1.0, 2.0), times);
+    assertEquals(path.size() - 1, times.size(), "one time per step along the path");
+
+    // a path that never leaves its starting location has no steps to time
+    List<String> samePath = backend.findLocationsOnShortestPath("Union South", "Union South");
+    assertEquals(1, samePath.size());
+    assertTrue(backend.findTimesOnShortestPath("Union South", "Union South").isEmpty());
+  }
+
+  /**
+   * Checks that getReachableFromWithin keeps the locations within the time
+   * limit, drops the ones past it, and rejects a start that is not a location
+   */
+  @Test
+  public void roleTest3() throws IOException {
+    Backend backend = new Backend(new Graph_Placeholder());
+    backend.loadGraphData(writeTestFile());
+
+    // the placeholder costs 1.0 to reach the second location and 3.0 the third
+    List<String> near = backend.getReachableFromWithin("Union South", 1.0);
+    assertEquals(2, near.size());
+    assertTrue(near.contains("Union South"), "the start is reachable from itself");
+    assertTrue(near.contains("Computer Sciences and Statistics"));
+    assertFalse(near.contains("Weeks Hall for Geological Sciences"), "3.0 is over the limit");
+
+    // raising the limit should pull in the far location
+    assertEquals(3, backend.getReachableFromWithin("Union South", 3.0).size());
+
+    assertThrows(NoSuchElementException.class,
+        () -> backend.getReachableFromWithin("Camp Randall", 10.0),
+        "a start that is not in the graph should throw");
+  }
+
+  /**
+   * Integration test using the real DijkstraGraph implementation to verify
+   * that shortest-path location lookup works against the actual graph code.
+   */
+  @Test
+  public void roleTest4IntegrationBackendUsesDijkstraGraph() throws IOException {
+    Backend backend = new Backend(new DijkstraGraph<>());
+
+    // load graph data through the backend and ensure graph nodes are created
+    backend.loadGraphData(writeTestFile());
+    assertEquals(3, backend.getListOfAll().size(), "three locations should be loaded");
+
+    // verify the actual computed shortest path on the real Dijkstra graph
+    List<String> actualPath = backend.findLocationsOnShortestPath("Union South",
+        "Weeks Hall for Geological Sciences");
+    assertEquals(List.of("Union South", "Computer Sciences and Statistics",
+        "Weeks Hall for Geological Sciences"), actualPath);
+  }
+
+  /**
+   * Integration test that verifies reachable locations use the real backend
+   * with the actual graph implementation rather than a placeholder.
+   */
+  @Test
+  public void roleTest5IntegrationBackendReachableFromWithin() throws IOException {
+    Backend backend = new Backend(new DijkstraGraph<>());
+
+    // load the same graph data so reachability is based on actual edge weights
+    backend.loadGraphData(writeTestFile());
+
+    List<String> nearby = backend.getReachableFromWithin("Union South", 1.0);
+    assertTrue(nearby.contains("Union South"), "start should always be reachable");
+    assertTrue(nearby.contains("Computer Sciences and Statistics"),
+        "the immediate neighbor should be reachable within 1.0 minute");
+    assertFalse(nearby.contains("Weeks Hall for Geological Sciences"),
+        "the far location should not be reachable within 1.0 minute");
+  }
+
+  /**
+   * Integration test that exercises both Backend and Frontend together with real
+   * graph data and verifies the HTML output includes the expected path.
+   */
+  @Test
+  public void roleTest6IntegrationFrontendShortestPathResponse() throws IOException {
+    Backend backend = new Backend(new DijkstraGraph<>());
+    backend.loadGraphData(writeTestFile());
+    Frontend frontend = new Frontend(backend);
+
+    // produce HTML from the frontend using the real backend
+    String html = frontend.generateShortestPathResponseHTML(
+        "Union South", "Weeks Hall for Geological Sciences");
+
+    assertTrue(html.contains("<li>Union South</li>"),
+        "HTML should include the start location");
+    assertTrue(html.contains("<li>Weeks Hall for Geological Sciences</li>"),
+        "HTML should include the end location");
+    assertTrue(html.contains("Total travel time: 3.0"),
+        "HTML should include the correct total travel time");
+  }
+
+  /**
+   * Integration test that exercises the real frontend response for reachable
+   * locations and verifies that actual graph data is reflected.
+   */
+  @Test
+  public void roleTest7IntegrationFrontendReachableFromWithinResponse() throws IOException {
+    Backend backend = new Backend(new DijkstraGraph<>());
+    backend.loadGraphData(writeTestFile());
+    Frontend frontend = new Frontend(backend);
+
+    // generate the reachable-from-within response HTML from the real code path
+    String html = frontend.generateReachableFromWithinResponseHTML("Union South", 3.0);
+
+    assertTrue(html.contains("Locations reachable from Union South within 3.0 minutes"),
+        "HTML should describe the reachable-from-within query");
+    assertTrue(html.contains("<li>Weeks Hall for Geological Sciences</li>"),
+        "The far location should be included when the time limit is sufficient");
+  }
+}
